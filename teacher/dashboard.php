@@ -1,0 +1,296 @@
+<?php
+session_start();
+include "../config/db_connect.php";
+
+if (!isset($_SESSION['user_id'])) {
+  header("Location: ../auth/login.php");
+  exit();
+}
+if ($_SESSION['role'] !== 'teacher') {
+  header("Location: ../index.php");
+  exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+     <script src="../assets/script.js"></script>
+</head>
+<body>
+
+<div class="w-full flex ">
+
+<?php include "sidebar.php"; ?>
+
+<main class="ml-[18%] w-[82%] min-h-screen">
+
+             <!-- header -->
+         <header
+            class="flex py-2 sticky top-0 w-full bg-white  px-6 dark:border-neutral-700 dark:bg-neutral-900 min-h-[68px] z-20"
+            aria-label="header">
+            <div class="flex flex-wrap items-center gap-4 w-full">
+               <div class="flex flex-col gap-1">
+                <h1 class="text-xl text-slate-900 font-bold dark:text-slate-50">Dashboard</h1>
+                <p class="text-sm text-slate-700 dark:text-slate-50">Welcome back, <?php echo ucfirst($_SESSION['username']); ?> 👋</p>
+            </div>
+
+               <div class="flex items-center flex-wrap gap-5 ml-auto">
+
+                  <!-- Search Box -->
+                  <form role="search" id="searchBox"
+                     class="flex items-center gap-2.5 mt-4 px-3 py-2.5 rounded-md bg-white dark:bg-neutral-800 outline-1 -outline-offset-1 outline-slate-300 dark:outline-neutral-700 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-blue-600">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" class="size-4 fill-slate-400"
+                        aria-hidden="true">
+                        <path
+                           d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z">
+                        </path>
+                     </svg>
+                     <input type="search" placeholder="Search..."
+                        class="text-sm text-slate-900 dark:text-slate-50 w-full outline-none bg-transparent" />
+                  </form>
+
+                  <!-- notifications -->
+                  <a href="#"
+                     class="relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
+                     <span class="sr-only">View notifications</span>
+                     <svg xmlns="http://www.w3.org/2000/svg"
+                        class="size-5 fill-slate-900 dark:fill-slate-50 overflow-visible" viewBox="0 0 371.263 371.263"
+                        aria-hidden="true">
+                        <path
+                           d="M305.402 234.794v-70.54c0-52.396-33.533-98.085-79.702-115.151.539-2.695.838-5.449.838-8.204C226.539 18.324 208.215 0 185.64 0s-40.899 18.324-40.899 40.899c0 2.695.299 5.389.778 7.964-15.868 5.629-30.539 14.551-43.054 26.647-23.593 22.755-36.587 53.354-36.587 86.169v73.115c0 2.575-2.096 4.731-4.731 4.731-22.096 0-40.959 16.647-42.995 37.845-1.138 11.797 2.755 23.533 10.719 32.276 7.904 8.683 19.222 13.713 31.018 13.713h72.217c2.994 26.887 25.869 47.905 53.534 47.905s50.54-21.018 53.534-47.905h72.217c11.797 0 23.114-5.03 31.018-13.713 7.904-8.743 11.797-20.479 10.719-32.276-2.036-21.198-20.958-37.845-42.995-37.845a4.704 4.704 0 0 1-4.731-4.731zM185.64 23.952c9.341 0 16.946 7.605 16.946 16.946 0 .778-.12 1.497-.24 2.275-4.072-.599-8.204-1.018-12.336-1.138-7.126-.24-14.132.24-21.078 1.198-.12-.778-.24-1.497-.24-2.275.002-9.401 7.607-17.006 16.948-17.006zm0 323.358c-14.431 0-26.527-10.3-29.342-23.952h58.683c-2.813 13.653-14.909 23.952-29.341 23.952zm143.655-67.665c.479 5.15-1.138 10.12-4.551 13.892-3.533 3.773-8.204 5.868-13.353 5.868H59.89c-5.15 0-9.82-2.096-13.294-5.868-3.473-3.772-5.09-8.743-4.611-13.892.838-9.042 9.282-16.168 19.162-16.168 15.809 0 28.683-12.874 28.683-28.683v-73.115c0-26.228 10.419-50.719 29.282-68.923 18.024-17.425 41.498-26.887 66.528-26.887 1.198 0 2.335 0 3.533.06 50.839 1.796 92.277 45.929 92.277 98.325v70.54c0 15.809 12.874 28.683 28.683 28.683 9.88 0 18.264 7.126 19.162 16.168z"
+                           data-original="#000000"></path>
+                     </svg>
+                     <span class="absolute top-0 right-0 size-2.5 bg-red-500 rounded-full"></span>
+                  </a>
+
+                  <!-- Profile Dropdown -->
+                  <div class="relative w-max flex flex-col">
+                     <button type="button" id="dropdown-toggle" aria-haspopup="true" aria-expanded="false"
+                        aria-controls="dropdown-menu"
+                        class="border border-slate-300 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                        <img src="https://readymadeui.com/team-1.webp" alt="profile-pic" class="size-9 rounded-full" />
+                     </button>
+
+                     <!-- Dropdown Menu -->
+                     <ul id="dropdown-menu" aria-labelledby="dropdown-toggle"
+                        class="hidden absolute right-0 top-full mt-2 p-2 space-y-0.5 min-w-48 w-full text-slate-800 text-sm font-medium bg-white border border-slate-300 rounded-md shadow-lg z-20 overflow-hidden dark:text-slate-400 dark:bg-neutral-800 dark:border-neutral-700">
+                        <li>
+                           <a href="#"
+                              class="dropdown-item w-full p-2 flex items-center gap-2.5 rounded-md cursor-pointer transition-colors hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-slate-50 dark:hover:bg-neutral-700">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="size-[18px] fill-current overflow-visible"
+                                 viewBox="0 0 512 512" aria-hidden="true">
+                                 <path
+                                    d="M253.414 103.434c48.556 0 87.919 40.52 87.919 90.505s-39.363 90.505-87.919 90.505-87.919-40.521-87.919-90.505 39.363-90.505 87.919-90.505m0 36.202c-28.324 0-51.717 24.081-51.717 54.303s23.393 54.303 51.717 54.303 51.717-24.081 51.717-54.303-23.393-54.303-51.717-54.303"
+                                    data-original="#000000" />
+                                 <path
+                                    d="M253.414 0c139.957 0 253.414 113.457 253.414 253.414 0 94.285-51.491 176.544-127.886 220.19-35.728 20.575-77.036 32.582-121.104 33.199l-4.423.025C113.457 506.828 0 393.371 0 253.414S113.457 0 253.414 0m-23.676 346.505c-46.331 0-87.479 29.378-102.607 73.008l-2.339 7.571c35.919 27.232 80.165 42.893 126.504 43.522l5.709-.009c38.24-.62 74.079-11.122 105.072-29.064l19.977-13.243-2.237-6.866c-14.371-44.046-55.062-74.052-101.239-74.901zm23.676-310.303c-119.963 0-217.212 97.249-217.212 217.212 0 57.493 22.337 109.77 58.807 148.624 21.668-55.072 74.965-91.735 134.73-91.735h46.831c59.905 0 113.311 36.835 134.885 92.121 36.686-38.892 59.172-91.325 59.172-149.01-.001-119.963-97.25-217.212-217.213-217.212"
+                                    data-original="#000000" />
+                              </svg>
+                              My Profile
+                           </a>
+                        </li>
+                        <li>
+                           <a href="#"
+                              class="dropdown-item w-full p-2 flex items-center gap-2.5 rounded-md cursor-pointer transition-colors hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-slate-50 dark:hover:bg-neutral-700">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="size-[18px] fill-current overflow-visible"
+                                 viewBox="0 0 32 32" aria-hidden="true">
+                                 <g data-name="Layer 2">
+                                    <path
+                                       d="M24.915 3.663a3.15 3.15 0 0 0-2.688-1.554H9.774a3.15 3.15 0 0 0-2.688 1.554L.859 14.446a3.15 3.15 0 0 0 0 3.15l6.227 10.742a3.15 3.15 0 0 0 2.688 1.554h12.453a3.15 3.15 0 0 0 2.688-1.554l6.226-10.784a3.15 3.15 0 0 0 0-3.15zm4.41 12.841-6.227 10.784a1.05 1.05 0 0 1-.871.504H9.774a1.05 1.05 0 0 1-.872-.504L2.676 16.504a1.05 1.05 0 0 1 0-1.05L8.902 4.713a1.05 1.05 0 0 1 .872-.504h12.453a1.05 1.05 0 0 1 .871.504l6.227 10.783a1.05 1.05 0 0 1 0 1.008"
+                                       data-original="#000000" />
+                                    <path
+                                       d="M16 9.7a6.3 6.3 0 1 0 6.3 6.3A6.3 6.3 0 0 0 16 9.7m0 10.5a4.2 4.2 0 1 1 4.2-4.2 4.2 4.2 0 0 1-4.2 4.2"
+                                       data-original="#000000" />
+                                 </g>
+                              </svg>
+                              Account Settings
+                           </a>
+                        </li>
+                        <li>
+                           <a href="#"
+                              class="dropdown-item w-full p-2 flex items-center gap-2.5 rounded-md cursor-pointer transition-colors hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-slate-50 dark:hover:bg-neutral-700">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="size-[18px] fill-current overflow-visible"
+                                 viewBox="0 0 512 512" aria-hidden="true">
+                                 <path
+                                    d="M456 80H56c-30.878 0-56 25.122-56 56v240c0 30.878 25.122 56 56 56h400c30.878 0 56-25.122 56-56V136c0-30.878-25.122-56-56-56M56 112h400c13.233 0 24 10.767 24 24v32H32v-32c0-13.233 10.767-24 24-24m400 288H56c-13.233 0-24-10.767-24-24V200h448v176c0 13.233-10.767 24-24 24"
+                                    data-original="#000000" />
+                                 <path
+                                    d="M112 352H96c-8.836 0-16-7.164-16-16v-16c0-8.836 7.164-16 16-16h16c8.836 0 16 7.164 16 16v16c0 8.836-7.164 16-16 16"
+                                    data-original="#000000" />
+                              </svg>
+                              Billing & Payments
+                           </a>
+                        </li>
+                        <li>
+                           <a href="../auth/logout.php"
+                              class="dropdown-item w-full p-2 flex items-center gap-2.5 rounded-md cursor-pointer transition-colors hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-slate-50 dark:hover:bg-neutral-700">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="size-[18px] fill-current overflow-visible"
+                                 viewBox="0 0 6.35 6.35">
+                                 <path
+                                    d="M3.172.292a.289.29 0 0 0-.286.292v2.318a.289.29 0 0 0 .578 0V.584a.289.29 0 0 0-.292-.292m1.683.58a.289.29 0 0 0-.029 0 .289.29 0 0 0-.16.512c.5.426.816 1.06.816 1.772A2.31 2.31 0 0 1 3.176 5.48 2.31 2.31 0 0 1 .87 3.16c0-.709.311-1.339.806-1.766a.289.29 0 1 0-.375-.44 2.9 2.9 0 0 0-1.01 2.203A2.9 2.9 0 0 0 3.178 6.06 2.896 2.896 0 0 0 6.06 3.156 2.9 2.9 0 0 0 5.04.944a.289.29 0 0 0-.185-.072"
+                                    data-original="#000000" />
+                              </svg>
+                              Logout
+                           </a>
+                        </li>
+                     </ul>
+                  </div>
+
+                  <!-- Username and role -->
+                   <div class="relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
+                     <p class="text-sm text-slate-700 dark:text-slate-50"><?php echo ucfirst($_SESSION['username']); ?>,</p>
+                     <p class="text-sm text-slate-600 dark:text-slate-50"><?php echo ucfirst($_SESSION['role']); ?></p>
+                   </div>
+               </div>
+            </div>
+         </header>
+
+           <div class="p-4 ">
+              <div class="grid grid-cols-4 gap-4 my-6">
+                <div
+                    class="w-full max-w-[400px] rounded-xl border border-slate-100 bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.08)]">
+                      <div class="flex items-center gap-4">
+                         <!-- Icon -->
+                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-fuchsia-50">
+                             <svg xmlns="http://www.w3.org/2000/svg"
+                                  class="h-5 w-5 text-fuchsia-500"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  stroke-width="2">
+                
+                                 <rect x="5" y="5" width="14" height="14" rx="2"/>
+                                 <path stroke-linecap="round" d="M9 9h6M9 12h6M9 15h3"/>
+                
+                             </svg>
+                         </div>
+                
+                         <!-- Content -->
+                         <div>
+                             <p class="text-xs font-medium text-slate-400">
+                                 My Courses
+                             </p>
+                
+                             <p class="mt-1 text-xl font-semibold text-slate-800">
+                                 3
+                             </p>
+                         </div>
+                
+                        </div>
+                </div>
+                <div
+                    class="w-full max-w-[400px] rounded-xl border border-slate-100 bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.08)]">
+                      <div class="flex items-center gap-4">
+                         <!-- Icon -->
+                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-fuchsia-50">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                               <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                               <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                             </svg>
+                         </div>
+                
+                         <!-- Content -->
+                         <div>
+                             <p class="text-xs font-medium text-slate-400">
+                                 Total Students
+                             </p>
+                
+                             <p class="mt-1 text-xl font-semibold text-slate-800">
+                                 1
+                             </p>
+                         </div>
+                
+                        </div>
+                </div>
+                <div
+                    class="w-full max-w-[400px] rounded-xl border border-slate-100 bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.08)]">
+                      <div class="flex items-center gap-4">
+                         <!-- Icon -->
+                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-fuchsia-50">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                               <circle cx="9" cy="7" r="4"/>
+                               <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                               <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                             </svg>
+                         </div>
+                
+                         <!-- Content -->
+                         <div>
+                             <p class="text-xs font-medium text-slate-400">
+                                 Total Enrollments
+                             </p>
+                
+                             <p class="mt-1 text-xl font-semibold text-slate-800">
+                                 3
+                             </p>
+                         </div>
+                
+                        </div>
+                </div>
+                <div
+                    class="w-full max-w-[400px] rounded-xl border border-slate-100 bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.08)]">
+                      <div class="flex items-center gap-4">
+                         <!-- Icon -->
+                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-fuchsia-50">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                               <polyline points="14 2 14 8 20 8"/>
+                               <circle cx="12" cy="15" r="2"/>
+                             </svg>
+                         </div>
+                
+                         <!-- Content -->
+                         <div>
+                             <p class="text-xs font-medium text-slate-400">
+                                 Pending Enrollment
+                             </p>
+                
+                             <p class="mt-1 text-xl font-semibold text-slate-800">
+                                 1
+                             </p>
+                         </div>
+                
+                        </div>
+                </div>
+              </div>
+              <div class="grid grid-cols-5 gap-4 mb-4">
+                 <div
+                    class="col-span-3 block rounded-lg bg-white p-6 text-surface shadow-secondary-1 shadow-[0_12px_40px_rgba(0,0,0,0.16)] dark:bg-surface-dark dark:text-white">
+                    <h5 class="mb-2 text-xl font-medium leading-tight">Enrollment Overview</h5>
+                    <p class="mb-4 text-base">
+                      Some quick example text to build on the card title and make up the
+                      bulk of the card's content.
+                    </p>
+                    <p class="mb-4 text-base">
+                      Some quick example text to build on the card title and make up the
+                      bulk of the card's content.
+                    </p>
+                    <p class="mb-4 text-base">
+                      Some quick example text to build on the card title and make up the
+                      bulk of the card's content.
+                    </p>
+                  </div>
+                 <div
+                    class="col-span-2 block rounded-lg bg-white p-6 text-surface shadow-secondary-1 shadow-[0_12px_40px_rgba(0,0,0,0.16)] dark:bg-surface-dark dark:text-white">
+                    <h5 class="mb-2 text-xl font-medium leading-tight">My Courses</h5>
+                    <p class="mb-4 text-base">
+                      Some quick example text to build on the card title and make up the
+                      bulk of the card's content.
+                    </p>
+                    <p class="mb-4 text-base">
+                      Some quick example text to build on the card title and make up the
+                      bulk of the card's content.
+                    </p>
+                    <p class="mb-4 text-base">
+                      Some quick example text to build on the card title and make up the
+                      bulk of the card's content.
+                    </p>
+                  </div>
+              </div>
+           </div>    
+</body>
+</html>
